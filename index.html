@@ -13,7 +13,7 @@
 <header>
   <div class="head-row">
     <div>
-      <h1><svg class="bits" viewBox="0 0 28 28" fill="currentColor" aria-hidden="true"><rect x="19" y="1" width="8" height="8"/><rect x="8" y="5" width="6" height="6"/><rect x="20" y="13" width="5" height="5"/><rect x="1" y="13" width="4" height="4"/><rect x="10" y="15" width="7" height="7"/><rect x="22" y="21" width="4" height="4"/><rect x="3" y="21" width="3" height="3"/></svg>Barcode Wallet</h1>
+      <h1><svg class="mark" viewBox="0 0 28 28" fill="currentColor" aria-hidden="true"><rect x="3" y="5" width="3" height="18"/><rect x="8" y="5" width="2" height="18"/><rect x="12" y="5" width="4" height="18"/><rect x="18" y="5" width="2" height="18"/><rect x="22" y="5" width="4" height="18"/></svg>Barcode Wallet</h1>
       <p class="sub">Your codes, ready when the scanner is.</p>
     </div>
     <button id="themeToggle" class="theme-btn" aria-label="Toggle dark mode">🌙</button>
@@ -22,6 +22,7 @@
 <main>
   <section class="panel" id="savedPanel">
     <h2>Saved</h2>
+    <p id="reorderHint" class="hint" hidden>Long-press a card to drag and reorder.</p>
     <p id="emptyMsg" class="muted">Nothing saved yet. Add your first code below — type any text, hit Save, then tap a card to scan it fullscreen.</p>
     <ul id="savedList" class="saved"></ul>
   </section>
