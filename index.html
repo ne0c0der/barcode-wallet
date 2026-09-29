@@ -1,69 +1,66 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0e0e11">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0d10">
 <title>Barcode Wallet</title>
+<link rel="stylesheet" href="styles.css">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <header>
   <h1>Barcode Wallet</h1>
-  <p class="sub">Generate, save, scan. Everything stays on this device.</p>
+  <p class="sub">Your codes, ready when the scanner is.</p>
 </header>
-
 <main>
-  <section class="card">
-    <h2>New barcode</h2>
-    <label>Text to encode
-      <input id="codeText" type="text" inputmode="text" autocomplete="off"
-             placeholder="e.g. username, badge ID, press number">
-    </label>
-    <div class="row">
-      <label>Format
-        <select id="codeFormat">
-          <option value="CODE128" selected>Code 128</option>
-          <option value="CODE39">Code 39</option>
-        </select>
-      </label>
-      <label>Label
-        <input id="codeLabel" type="text" autocomplete="off" placeholder="e.g. Login">
-      </label>
-    </div>
-    <button id="generateBtn" class="primary">Generate</button>
-    <div id="previewWrap" class="preview hidden">
-      <svg id="preview"></svg>
-      <button id="saveBtn" class="secondary">Save to wallet</button>
-    </div>
+  <section class="panel" id="savedPanel">
+    <h2>Saved</h2>
+    <p id="emptyMsg" class="muted">Nothing saved yet. Add your first code below — type any text, hit Save, then tap a card to scan it fullscreen.</p>
+    <ul id="savedList" class="saved"></ul>
   </section>
 
-  <section class="card">
-    <h2>Saved</h2>
-    <ul id="savedList" class="saved"></ul>
-    <p id="emptyMsg" class="muted">Nothing saved yet. Generate one above.</p>
+  <section class="panel">
+    <h2>New code</h2>
+    <form id="genForm">
+      <div class="field">
+        <label for="textInput">Text to encode</label>
+        <input id="textInput" type="text" placeholder="Badge number, press ID…" autocomplete="off" required>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="labelInput">Label</label>
+          <input id="labelInput" type="text" placeholder="e.g. My login" autocomplete="off" required>
+        </div>
+        <div class="field">
+          <label for="formatInput">Format</label>
+          <select id="formatInput">
+            <option value="CODE128" selected>Code 128</option>
+            <option value="CODE39">Code 39</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Preview</label>
+        <div id="previewBox" class="preview"><span class="muted">Type something to preview</span></div>
+      </div>
+      <button type="submit" class="primary">Save code</button>
+    </form>
   </section>
 </main>
+<footer class="foot">Works offline · saved on this device only</footer>
 
-<div id="scanOverlay" class="overlay hidden" role="dialog" aria-label="Barcode fullscreen">
-  <div class="scan-top">
-    <span id="scanLabel"></span>
-    <button id="closeOverlay" aria-label="Close">✕</button>
+<div id="overlay" class="overlay hidden" role="dialog" aria-modal="true" aria-label="Scan barcode">
+  <div class="ov-top">
+    <span id="overlayLabel" class="ov-label"></span>
+    <button id="overlayClose" class="ov-close" aria-label="Close">✕</button>
   </div>
-  <div class="scan-body">
-    <svg id="scanCode"></svg>
-  </div>
-  <p class="scan-hint">Turn brightness up for stubborn scanners.</p>
+  <div class="ov-code"><svg id="overlaySvg" role="img" aria-label="Barcode"></svg></div>
+  <p class="ov-hint">Hold up to the scanner · tap anywhere to close</p>
 </div>
 
 <script src="JsBarcode.all.min.js"></script>
 <script src="app.js"></script>
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
-}
-</script>
 </body>
 </html>

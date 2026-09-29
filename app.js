@@ -2,10 +2,11 @@
 const LS_KEY = 'barcode-wallet-codes-v1';
 
 const $ = (id) => document.getElementById(id);
-const codeText = $('codeText'), codeFormat = $('codeFormat'), codeLabel = $('codeLabel');
-const previewWrap = $('previewWrap'), preview = $('preview');
+const genForm = $('genForm');
+const textInput = $('textInput'), labelInput = $('labelInput'), formatInput = $('formatInput');
+const previewBox = $('previewBox');
 const savedList = $('savedList'), emptyMsg = $('emptyMsg');
-const overlay = $('scanOverlay'), scanCode = $('scanCode'), scanLabel = $('scanLabel');
+const overlay = $('overlay'), overlaySvg = $('overlaySvg'), overlayLabel = $('overlayLabel');
 
 function load() {
   try { return JSON.parse(localStorage.getItem(LS_KEY)) || []; }
@@ -28,31 +29,52 @@ function drawBarcode(svg, text, format, compact) {
   });
 }
 
-$('generateBtn').addEventListener('click', () => {
-  const text = codeText.value.trim();
-  if (!text) { codeText.focus(); return; }
-  try {
-    drawBarcode(preview, text, codeFormat.value);
-    previewWrap.classList.remove('hidden');
-  } catch (e) {
-    alert('That text can\'t be encoded as ' + codeFormat.value + '. Try Code 128, which accepts any text.');
+function updatePreview() {
+  const text = textInput.value.trim();
+  const format = formatInput.value;
+  if (!text) {
+    previewBox.innerHTML = '<span class="muted">Type something to preview</span>';
+    return;
   }
-});
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  try {
+    drawBarcode(svg, text, format);
+  } catch {
+    previewBox.innerHTML = '<span class="error">This text does not fit ' + format + '. Try Code 128.</span>';
+    return;
+  }
+  previewBox.innerHTML = '';
+  previewBox.appendChild(svg);
+}
 
-$('saveBtn').addEventListener('click', () => {
-  const text = codeText.value.trim();
-  if (!text) return;
+textInput.addEventListener('input', updatePreview);
+formatInput.addEventListener('change', updatePreview);
+
+genForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const text = textInput.value.trim();
+  const format = formatInput.value;
+  if (!text) { textInput.focus(); return; }
+  // Validate encodability before saving.
+  try {
+    drawBarcode(document.createElementNS('http://www.w3.org/2000/svg', 'svg'), text, format);
+  } catch {
+    previewBox.innerHTML = '<span class="error">This text does not fit ' + format + '. Try Code 128.</span>';
+    return;
+  }
   const codes = load();
   codes.unshift({
-    id: Date.now().toString(36),
-    label: codeLabel.value.trim() || text,
+    id: 'c' + Date.now().toString(36),
+    label: labelInput.value.trim() || text.slice(0, 24),
     text,
-    format: codeFormat.value,
+    format,
   });
   persist(codes);
-  codeText.value = ''; codeLabel.value = '';
-  previewWrap.classList.add('hidden');
+  textInput.value = '';
+  labelInput.value = '';
+  updatePreview();
   render();
+  $('savedPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
 
 function render() {
@@ -101,8 +123,9 @@ function render() {
 }
 
 function openOverlay(c) {
-  scanLabel.textContent = c.label;
-  drawBarcode(scanCode, c.text, c.format);
+  overlayLabel.textContent = c.label;
+  overlaySvg.innerHTML = '';
+  drawBarcode(overlaySvg, c.text, c.format);
   overlay.classList.remove('hidden');
   document.body.style.overflow = 'hidden';
 }
@@ -110,7 +133,7 @@ function closeOverlay() {
   overlay.classList.add('hidden');
   document.body.style.overflow = '';
 }
-$('closeOverlay').addEventListener('click', closeOverlay);
+$('overlayClose').addEventListener('click', closeOverlay);
 overlay.addEventListener('click', (e) => { if (e.target === overlay) closeOverlay(); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeOverlay(); });
 
