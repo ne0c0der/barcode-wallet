@@ -137,4 +137,21 @@ $('overlayClose').addEventListener('click', closeOverlay);
 overlay.addEventListener('click', (e) => { if (e.target === overlay) closeOverlay(); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeOverlay(); });
 
+// Theme: light by default, dark optional. Persisted on this device.
+const themeToggle = $('themeToggle');
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  try { localStorage.setItem('barcode-wallet-theme', t); } catch {}
+  themeToggle.textContent = t === 'dark' ? '☀️' : '🌙';
+  themeToggle.setAttribute('aria-label', t === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', t === 'dark' ? '#0b0d10' : '#eef1f5');
+}
+let savedTheme = 'light';
+try { savedTheme = localStorage.getItem('barcode-wallet-theme') || 'light'; } catch {}
+applyTheme(savedTheme);
+themeToggle.addEventListener('click', () => {
+  applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+});
+
 render();

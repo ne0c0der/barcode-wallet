@@ -1,11 +1,19 @@
 :root {
+  --bg: #eef1f5;
+  --card: #ffffff;
+  --line: #dde2e9;
+  --text: #15181d;
+  --muted: #66707c;
+  --accent: #1f6feb;
+  --radius: 14px;
+}
+[data-theme="dark"] {
   --bg: #0b0d10;
   --card: #12151a;
   --line: #22272f;
   --text: #f2f4f6;
   --muted: #98a1ab;
   --accent: #4da3ff;
-  --radius: 14px;
 }
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -18,6 +26,7 @@ body {
   line-height: 1.45;
 }
 header { max-width: 560px; margin: 0 auto; padding: 34px 20px 6px; }
+.head-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 header h1 {
   margin: 0;
   font-size: 1.65rem;
@@ -138,6 +147,8 @@ button.primary:active { transform: scale(0.99); }
   border-radius: 8px;
   padding: 12px 8px 8px;
 }
+/* In light mode the white barcode area needs a border to stand out */
+[data-theme="light"] .note-code { border: 1px solid var(--line); }
 .note-code svg { width: 100%; height: auto; display: block; }
 .note-meta { color: var(--muted); font-size: 0.78rem; margin-top: 10px; }
 .del-btn {
@@ -153,6 +164,18 @@ button.primary:active { transform: scale(0.99); }
   cursor: pointer;
 }
 .del-btn:active { color: #ff7a7a; border-color: #ff7a7a; }
+.theme-btn {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--line);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-size: 1.15rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  line-height: 1;
+}
 .foot {
   text-align: center;
   color: var(--muted);
