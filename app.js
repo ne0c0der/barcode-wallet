@@ -145,7 +145,7 @@ function applyTheme(t) {
   themeToggle.textContent = t === 'dark' ? '☀️' : '🌙';
   themeToggle.setAttribute('aria-label', t === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', t === 'dark' ? '#0b0d10' : '#eef1f5');
+  if (meta) meta.setAttribute('content', t === 'dark' ? '#101010' : '#F3EBDC');
 }
 let savedTheme = 'light';
 try { savedTheme = localStorage.getItem('barcode-wallet-theme') || 'light'; } catch {}
