@@ -1,4 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <rect width="512" height="512" rx="112" fill="#FAF6EC"/>
-  <text x="256" y="368" font-family="'Arial Rounded MT Bold','Helvetica Rounded','Segoe UI Rounded',Arial,sans-serif" font-size="320" font-weight="900" text-anchor="middle" fill="#141414">B</text>
+  <g fill="#141414">
+    <rect x="118" y="132" width="36" height="248"/>
+    <rect x="170" y="132" width="20" height="248"/>
+    <rect x="206" y="132" width="46" height="248"/>
+    <rect x="268" y="132" width="20" height="248"/>
+    <rect x="304" y="132" width="58" height="248"/>
+    <rect x="378" y="132" width="20" height="248"/>
+  </g>
 </svg>

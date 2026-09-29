@@ -84,6 +84,7 @@ function render() {
   for (const c of codes) {
     const li = document.createElement('li');
     li.className = 'note';
+    li.dataset.id = c.id;
     li.title = 'Tap to scan fullscreen';
 
     const head = document.createElement('div');
@@ -117,13 +118,79 @@ function render() {
     meta.textContent = c.format + ' · tap to scan';
 
     li.append(head, codeWrap, meta);
-    li.addEventListener('click', () => openOverlay(c));
+    li.addEventListener('click', () => { if (suppressCardClick) return; openOverlay(c); });
+    attachReorder(li);
     savedList.appendChild(li);
   }
+  $('reorderHint').hidden = codes.length < 2;
 }
 
-function openOverlay(c) {
-  overlayLabel.textContent = c.label;
+// Drag to reorder saved cards: long-press a card, then drag it up or down.
+// The new order is saved to localStorage. Taps and page scrolling are unaffected.
+let suppressCardClick = false;
+
+function attachReorder(li) {
+  let startX = 0, startY = 0, timer = 0, dragging = false;
+
+  const cleanup = () => {
+    window.removeEventListener('pointermove', onMove);
+    window.removeEventListener('pointerup', onUp);
+    window.removeEventListener('pointercancel', onCancel);
+  };
+  const finish = (commit) => {
+    clearTimeout(timer);
+    cleanup();
+    if (!dragging) return;
+    dragging = false;
+    if (commit) {
+      const order = [...savedList.querySelectorAll('.note')].map((n) => n.dataset.id);
+      const byId = new Map(load().map((c) => [c.id, c]));
+      persist(order.map((id) => byId.get(id)).filter(Boolean));
+      // The pointerup is followed by a click — swallow it so the overlay doesn't open.
+      suppressCardClick = true;
+      setTimeout(() => { suppressCardClick = false; }, 0);
+    }
+    render();
+  };
+  const onMove = (e) => {
+    if (!dragging) {
+      // Moved before the long-press fired: it's a scroll or tap, not a drag.
+      if (Math.hypot(e.clientX - startX, e.clientY - startY) > 12) {
+        clearTimeout(timer);
+        cleanup();
+      }
+      return;
+    }
+    e.preventDefault();
+    const cards = [...savedList.querySelectorAll('.note:not(.dragging)')];
+    let before = null;
+    for (const other of cards) {
+      const r = other.getBoundingClientRect();
+      if (e.clientY < r.top + r.height / 2) { before = other; break; }
+    }
+    savedList.insertBefore(li, before);
+  };
+  const onUp = () => finish(true);
+  const onCancel = () => finish(false);
+
+  li.addEventListener('pointerdown', (e) => {
+    if (e.target.closest('.del-btn')) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    startX = e.clientX;
+    startY = e.clientY;
+    timer = setTimeout(() => {
+      dragging = true;
+      li.classList.add('dragging');
+      li.style.touchAction = 'none';
+      if (navigator.vibrate) { try { navigator.vibrate(10); } catch (_) {} }
+    }, 350);
+    window.addEventListener('pointermove', onMove, { passive: false });
+    window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onCancel);
+  });
+}
+
+function openOverlay(c) {  overlayLabel.textContent = c.label;
   overlaySvg.innerHTML = '';
   drawBarcode(overlaySvg, c.text, c.format);
   overlay.classList.remove('hidden');
