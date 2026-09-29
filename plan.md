@@ -11,8 +11,8 @@ at work. Keep it small, keep it maintained, don't let it grow a roadmap.
 
 ## V1 (shipped)
 - Generate Code 128 (default, accepts any text) and Code 39
-- Save with label → localStorage, list, delete
-- Fullscreen scan overlay, white background
+- Save with label → localStorage; saved list shows each barcode inline like notes
+- Tap any saved code for the fullscreen scan overlay (pure white, max contrast)
 - PWA: manifest, service worker (offline), installable
 - Vendored JsBarcode (MIT) — no CDN dependency at runtime
 

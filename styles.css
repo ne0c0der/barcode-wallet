@@ -17,8 +17,19 @@ body {
   margin-left: auto;
   margin-right: auto;
 }
-header { padding: 28px 4px 12px; }
-header h1 { margin: 0; font-size: 1.6rem; }
+header { padding: 30px 4px 14px; }
+header h1 { margin: 0; font-size: 1.7rem; letter-spacing: -0.02em; }
+header h1::before {
+  content: "";
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+  margin-right: 0.45em;
+  vertical-align: -0.08em;
+  background:
+    linear-gradient(90deg, var(--accent) 0 18%, transparent 18% 30%, var(--accent) 30% 55%, transparent 55% 65%, var(--accent) 65% 100%);
+  border-radius: 3px;
+}
 .sub { color: var(--muted); margin: 4px 0 0; font-size: 0.9rem; }
 .card {
   background: var(--card);
@@ -40,6 +51,11 @@ input, select {
   border: 1px solid var(--line);
   border-radius: 10px;
 }
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(77, 163, 255, 0.18);
+}
 .row { display: flex; gap: 12px; }
 .row label { flex: 1; }
 button {
@@ -55,20 +71,42 @@ button.secondary { background: #23232b; color: var(--text); width: 100%; margin-
 .preview svg { background: #fff; border-radius: 8px; max-width: 100%; }
 .hidden { display: none !important; }
 .saved { list-style: none; margin: 0; padding: 0; }
-.saved li {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 13px 4px;
-  border-bottom: 1px solid var(--line);
+/* Saved codes render as note cards with the barcode always visible */
+.note {
+  background: #101014;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
 }
-.saved li:last-child { border-bottom: none; }
-.saved .name { font-weight: 600; }
-.saved .fmt { color: var(--muted); font-size: 0.8rem; margin-left: 8px; }
-.saved .actions { display: flex; gap: 8px; }
-.saved button { padding: 9px 14px; font-size: 0.9rem; }
-.open-btn { background: var(--accent); color: #06121f; font-weight: 600; }
-.del-btn { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+.note:active { border-color: var(--accent); }
+.note-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.note-head .name { font-weight: 700; font-size: 1rem; }
+.note-code {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 10px 8px 6px;
+}
+.note-code svg { width: 100%; height: auto; display: block; }
+.note-meta { color: var(--muted); font-size: 0.78rem; margin-top: 8px; }
+.del-btn {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
 .muted { color: var(--muted); font-size: 0.9rem; }
 
 /* Fullscreen scan mode: pure white, maximum contrast for laser scanners */

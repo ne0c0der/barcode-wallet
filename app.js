@@ -15,16 +15,16 @@ function persist(codes) {
   localStorage.setItem(LS_KEY, JSON.stringify(codes));
 }
 
-function drawBarcode(svg, text, format) {
+function drawBarcode(svg, text, format, compact) {
   // JsBarcode throws on characters invalid for the format; surface it cleanly.
   JsBarcode(svg, text, {
     format,
-    width: 3,
-    height: 120,
+    width: compact ? 2 : 3,
+    height: compact ? 64 : 120,
     displayValue: true,
     background: '#ffffff',
     lineColor: '#000000',
-    margin: 16,
+    margin: compact ? 8 : 16,
   });
 }
 
@@ -61,29 +61,41 @@ function render() {
   emptyMsg.style.display = codes.length ? 'none' : 'block';
   for (const c of codes) {
     const li = document.createElement('li');
-    const meta = document.createElement('div');
+    li.className = 'note';
+    li.title = 'Tap to scan fullscreen';
+
+    const head = document.createElement('div');
+    head.className = 'note-head';
     const name = document.createElement('span');
     name.className = 'name';
     name.textContent = c.label;
-    const fmt = document.createElement('span');
-    fmt.className = 'fmt';
-    fmt.textContent = c.format;
-    meta.append(name, fmt);
-    const actions = document.createElement('div');
-    actions.className = 'actions';
-    const open = document.createElement('button');
-    open.className = 'open-btn';
-    open.textContent = 'Scan';
-    open.addEventListener('click', () => openOverlay(c));
     const del = document.createElement('button');
     del.className = 'del-btn';
-    del.textContent = 'Delete';
-    del.addEventListener('click', () => {
+    del.textContent = '✕';
+    del.setAttribute('aria-label', 'Delete ' + c.label);
+    del.addEventListener('click', (e) => {
+      e.stopPropagation();
       persist(load().filter((x) => x.id !== c.id));
       render();
     });
-    actions.append(open, del);
-    li.append(meta, actions);
+    head.append(name, del);
+
+    const codeWrap = document.createElement('div');
+    codeWrap.className = 'note-code';
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    codeWrap.appendChild(svg);
+    try {
+      drawBarcode(svg, c.text, c.format, true);
+    } catch {
+      codeWrap.textContent = 'Could not render this code.';
+    }
+
+    const meta = document.createElement('div');
+    meta.className = 'note-meta';
+    meta.textContent = c.format + ' · tap to scan';
+
+    li.append(head, codeWrap, meta);
+    li.addEventListener('click', () => openOverlay(c));
     savedList.appendChild(li);
   }
 }

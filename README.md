@@ -8,7 +8,7 @@ Built for the factory floor — badge logins, press check-ins, QA scans — but 
 
 1. Open the app, type text, pick Code 128 or Code 39, hit Generate.
 2. Save it with a label (e.g. "Login", "Press 12").
-3. Tap **Scan** → fullscreen white barcode. Hold it up to the scanner.
+3. Saved codes stay visible like notes — tap any of them for the fullscreen scan view.
 
 Tip: crank brightness for stubborn laser scanners.
 
