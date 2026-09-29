@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0e0e11">
+<title>Barcode Wallet</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+  <h1>Barcode Wallet</h1>
+  <p class="sub">Generate, save, scan. Everything stays on this device.</p>
+</header>
+
+<main>
+  <section class="card">
+    <h2>New barcode</h2>
+    <label>Text to encode
+      <input id="codeText" type="text" inputmode="text" autocomplete="off"
+             placeholder="e.g. username, badge ID, press number">
+    </label>
+    <div class="row">
+      <label>Format
+        <select id="codeFormat">
+          <option value="CODE128" selected>Code 128</option>
+          <option value="CODE39">Code 39</option>
+        </select>
+      </label>
+      <label>Label
+        <input id="codeLabel" type="text" autocomplete="off" placeholder="e.g. Login">
+      </label>
+    </div>
+    <button id="generateBtn" class="primary">Generate</button>
+    <div id="previewWrap" class="preview hidden">
+      <svg id="preview"></svg>
+      <button id="saveBtn" class="secondary">Save to wallet</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Saved</h2>
+    <ul id="savedList" class="saved"></ul>
+    <p id="emptyMsg" class="muted">Nothing saved yet. Generate one above.</p>
+  </section>
+</main>
+
+<div id="scanOverlay" class="overlay hidden" role="dialog" aria-label="Barcode fullscreen">
+  <div class="scan-top">
+    <span id="scanLabel"></span>
+    <button id="closeOverlay" aria-label="Close">✕</button>
+  </div>
+  <div class="scan-body">
+    <svg id="scanCode"></svg>
+  </div>
+  <p class="scan-hint">Turn brightness up for stubborn scanners.</p>
+</div>
+
+<script src="JsBarcode.all.min.js"></script>
+<script src="app.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
+}
+</script>
+</body>
+</html>
