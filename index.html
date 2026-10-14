@@ -16,7 +16,7 @@
       <h1><svg class="mark" viewBox="0 0 28 28" fill="currentColor" aria-hidden="true"><rect x="3" y="5" width="3" height="18"/><rect x="8" y="5" width="2" height="18"/><rect x="12" y="5" width="4" height="18"/><rect x="18" y="5" width="2" height="18"/><rect x="22" y="5" width="4" height="18"/></svg>Barcode Wallet</h1>
       <p class="sub">Your codes, ready when the scanner is.</p>
     </div>
-    <button id="themeToggle" class="theme-btn" aria-label="Toggle dark mode">🌙</button>
+    <button id="themeToggle" class="theme-switch" role="switch" aria-checked="false" aria-label="Toggle dark mode"><span class="knob">🌙</span></button>
   </div>
 </header>
 <main>
@@ -63,6 +63,7 @@
     <button id="overlayClose" class="ov-close" aria-label="Close">✕</button>
   </div>
   <div class="ov-code"><svg id="overlaySvg" role="img" aria-label="Barcode"></svg></div>
+  <button id="overlaySave" class="ov-save">Save to Photos</button>
   <p class="ov-hint">Hold up to the scanner · tap anywhere to close</p>
 </div>
 
