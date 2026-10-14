@@ -92,6 +92,16 @@ function render() {
     const name = document.createElement('span');
     name.className = 'name';
     name.textContent = c.label;
+    const actions = document.createElement('div');
+    actions.className = 'note-actions';
+    const save = document.createElement('button');
+    save.className = 'save-btn';
+    save.textContent = '⤓';
+    save.setAttribute('aria-label', 'Save ' + c.label + ' to Photos');
+    save.addEventListener('click', (e) => {
+      e.stopPropagation();
+      saveBarcodeImage(c, save);
+    });
     const del = document.createElement('button');
     del.className = 'del-btn';
     del.textContent = '✕';
@@ -101,7 +111,8 @@ function render() {
       persist(load().filter((x) => x.id !== c.id));
       render();
     });
-    head.append(name, del);
+    actions.append(save, del);
+    head.append(name, actions);
 
     const codeWrap = document.createElement('div');
     codeWrap.className = 'note-code';
@@ -174,7 +185,7 @@ function attachReorder(li) {
   const onCancel = () => finish(false);
 
   li.addEventListener('pointerdown', (e) => {
-    if (e.target.closest('.del-btn')) return;
+    if (e.target.closest('.del-btn, .save-btn')) return;
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     startX = e.clientX;
     startY = e.clientY;
@@ -190,7 +201,10 @@ function attachReorder(li) {
   });
 }
 
-function openOverlay(c) {  overlayLabel.textContent = c.label;
+let overlayCode = null;
+function openOverlay(c) {
+  overlayCode = c;
+  overlayLabel.textContent = c.label;
   overlaySvg.innerHTML = '';
   drawBarcode(overlaySvg, c.text, c.format);
   overlay.classList.remove('hidden');
@@ -199,20 +213,90 @@ function openOverlay(c) {  overlayLabel.textContent = c.label;
 function closeOverlay() {
   overlay.classList.add('hidden');
   document.body.style.overflow = '';
+  overlayCode = null;
 }
 $('overlayClose').addEventListener('click', closeOverlay);
+$('overlaySave').addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (overlayCode) saveBarcodeImage(overlayCode, e.currentTarget);
+});
 overlay.addEventListener('click', (e) => { if (e.target === overlay) closeOverlay(); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeOverlay(); });
 
+// Save a barcode as a PNG image. On mobile this opens the share sheet so it
+// can land straight in Photos; everywhere else it downloads the file.
+let savingId = null;
+async function saveBarcodeImage(c, btn) {
+  if (savingId) return;
+  savingId = c.id;
+  if (btn) btn.disabled = true;
+  try {
+    const tmp = document.createElement('canvas');
+    JsBarcode(tmp, c.text, {
+      format: c.format,
+      width: 3,
+      height: 140,
+      displayValue: true,
+      background: '#ffffff',
+      lineColor: '#000000',
+      margin: 18,
+      fontSize: 22,
+    });
+    const labelH = 76;
+    const canvas = document.createElement('canvas');
+    canvas.width = tmp.width;
+    canvas.height = tmp.height + labelH;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#111111';
+    ctx.font = '700 34px -apple-system, "Segoe UI", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    let label = c.label || 'barcode';
+    while (ctx.measureText(label).width > canvas.width - 48 && label.length > 4) {
+      label = label.slice(0, -2);
+    }
+    if (label !== c.label) label += '…';
+    ctx.fillText(label, canvas.width / 2, labelH / 2);
+    ctx.drawImage(tmp, 0, labelH);
+
+    const blob = await new Promise((res) => canvas.toBlob(res, 'image/png'));
+    if (!blob) throw new Error('encode failed');
+    const safe = (c.label || 'barcode').replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '').toLowerCase() || 'barcode';
+    const file = new File([blob], safe + '.png', { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: c.label });
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    }
+  } catch (err) {
+    if (!err || err.name !== 'AbortError') alert('Could not save this image.');
+  } finally {
+    savingId = null;
+    if (btn) btn.disabled = false;
+  }
+}
+
 // Theme: light by default, dark optional. Persisted on this device.
 const themeToggle = $('themeToggle');
+const themeKnob = themeToggle.querySelector('.knob');
 function applyTheme(t) {
   document.documentElement.setAttribute('data-theme', t);
   try { localStorage.setItem('barcode-wallet-theme', t); } catch {}
-  themeToggle.textContent = t === 'dark' ? '☀️' : '🌙';
-  themeToggle.setAttribute('aria-label', t === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+  const dark = t === 'dark';
+  themeKnob.textContent = dark ? '☀️' : '🌙';
+  themeToggle.setAttribute('aria-checked', String(dark));
+  themeToggle.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', t === 'dark' ? '#101010' : '#F3EBDC');
+  if (meta) meta.setAttribute('content', dark ? '#101010' : '#F3EBDC');
 }
 let savedTheme = 'light';
 try { savedTheme = localStorage.getItem('barcode-wallet-theme') || 'light'; } catch {}
